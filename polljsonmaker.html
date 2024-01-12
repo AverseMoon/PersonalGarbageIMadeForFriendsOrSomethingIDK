@@ -1,9 +1,50 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Game Bot Poll Maker (beta)</title>
+    <title>Game Bot Poll Maker (beta, may change)</title>
+    <style>
+        .poll_option {
+            display: inline-block;
+        }
+    </style>
   </head>
   <body>
-    
+    <h1>Options:</h1>
+    <div id="poll_options" style="background-color: aliceblue;"></div><br/>
+    <input type="text" id="name" placeholder="Poll name"/><br/>
+    <input type="datetime-local" id="dt"/> <label for="dt">Poll end datetime (leave empty for infinite time)</label><br/>
+    <button onclick="make_option();">Add poll option.</button><br/>
+
+    <br/><h1>Output:</h1>
+    <button onclick="navigator.clipboard.writeText($('#output').html());alert('Copied to clipboard!');">Copy</button><span id="output" style="background-color: lightgrey;"></span><br/>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        function generate_code() {
+            const options = [];
+            const pollOptions = document.getElementById('poll_options');
+            for (let i = 0; i < pollOptions.children.length; i++) {
+                const option = pollOptions.children[i];
+                const input = option.querySelector('.inp');
+                options.push({
+                    name: input.value,
+                    event: option.querySelector('.date').value ? {
+                        name: option.querySelector('.evtname').value,
+                        date: option.querySelector('.date').value
+                    } : null
+                }); 
+            }
+            $("#output").html(JSON.stringify({
+                options: options,
+                end_time: $("#dt").val() ? $("#dt").val() : null,
+                name: $("#name").val()
+            }));
+            setTimeout(generate_code, 10);
+        }
+        function make_option() {
+            $("#poll_options").append($("<div/>").css("display","block").addClass("poll_option").append("<span>General:</span>&#160;").append($("<input/>").attr("type", "text").attr("placeholder", "Option name").addClass("inp")).append("&#160;&#160;<span>Event (leave date empty for no event):</span>&#160;").append("<input type='text' placeholder='Created Event Name' class='evtname'/>").append($("<input/>").attr("type", "datetime-local").addClass("date")).append("&#160;&#160;<button onclick='$(this).parent().remove(); generate_code();'>Delete</button>"));
+        }
+        generate_code();
+    </script>
   </body>
 </html>
